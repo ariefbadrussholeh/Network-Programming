@@ -1,27 +1,34 @@
 import socket
 import sys
+import threading
 
 server_address = ('127.0.0.1', 5000)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(server_address)
 
-sys.stdout.write('>> ')
+def receive_data():
+    while True:
+        data = client_socket.recv(1024).decode()
+        data = str(data).split('~')
+        fileName=data[0]
+        fileContain=data[1]
 
-try:
-  while True:
-    fileName = str(input())
+        with open("client1/" + fileName, "w") as file:
+          file.write(fileContain)
 
-    with open("client1/" + fileName, 'r') as file:
-      fileContent = file.read()
+def user_input():
+    while True:
+        fileName = input(">> ")
+        with open("client1/" + fileName, 'r') as file:
+          fileContent = file.read()
 
-    message = "{}~{}".format(fileName, fileContent)
+        message = "{}~{}".format(fileName, fileContent)
 
-    client_socket.send(message.encode())
-    sys.stdout.write("Mengirim file \"{}\" ke semua client\n".format(fileName))
-    sys.stdout.write(str(client_socket.recv(1024).decode()))
-    sys.stdout.write('>> ')
+        client_socket.send(message.encode())
 
-except KeyboardInterrupt:
-  client_socket.close()
-  sys.exit()
+t1 = threading.Thread(target=receive_data)
+t2 = threading.Thread(target=user_input)
+
+t1.start()
+t2.start()
 

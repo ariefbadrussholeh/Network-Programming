@@ -68,7 +68,6 @@ class Client(threading.Thread):
                     if client_socket != self.client:
                         client_socket.send(message.encode())
 
-                self.client.send("File berhasil terkirim\n".encode())
             else:
                 self.client.close()
                 running = 0
